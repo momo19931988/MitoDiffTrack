@@ -35,20 +35,15 @@ python MitoDiffTrack.py
 
 This opens a napari viewer and loads all MitoDiffTrack dock widgets.
 
-If installed as a napari plugin (entry point: `MitoDiffTrack:mitochondria_motility_analyzer`), you can launch it from:
-
-```
-Plugins → Mitochondria Motility Analyzer (python based plugin)
-```
 
 ---
 
 ## 1. Launch the workflow in napari
 
-### Option A. Run directly from Python
+### Run directly from Python
 
 ```
-python MitoDiffTrack.py
+python MitoDiffTrack_V01.py
 ```
 
 A napari viewer will open with all panels added automatically.
