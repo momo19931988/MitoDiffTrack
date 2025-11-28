@@ -1,259 +1,86 @@
-README.md
-MitoDiffTrack
+# MitoDiffTrack
 
-MitoDiffTrack is a python based workflow for analysing mitochondrial motility in time lapse fluorescence imaging.
+MitoDiffTrack is a python based workflow for analysing mitochondrial motility in time lapse fluorescence imaging.  
 It is implemented as a napari based tool with several dock widgets that guide the user through loading data, segmentation, tracking, motion analysis, and export.
 
 Main panels:
-
-load_czi
-
-calibration
-
-seg_params
-
-process_export (seg)
-
-track_mito
-
-batch_process_folder
+- `load_czi`
+- `calibration`
+- `seg_params`
+- `process_export (seg)`
+- `track_mito`
+- `batch_process_folder`
 
 Advanced panels:
+- `flow_motion_filaments`
+- `fast_tracks_skeleton`
+- `process_export (CSV)`
+- `save_gui_config` / `load_gui_config`
 
-flow_motion_filaments
+---
 
-fast_tracks_skeleton
-
-process_export (CSV)
-
-save_gui_config / load_gui_config
-
-Installation
+## Installation
 
 Create a Python environment and install dependencies:
 
+```
 pip install napari[all] magicgui numpy pandas scikit-image scipy opencv-python aicspylibczi qtpy
-
+```
 
 Then clone this repository and run:
 
+```
 python MitoDiffTrack.py
-
+```
 
 This opens a napari viewer and loads all MitoDiffTrack dock widgets.
 
-If installed as a napari plugin (entry point: MitoDiffTrack:mitochondria_motility_analyzer), you can launch it from:
+If installed as a napari plugin (entry point: `MitoDiffTrack:mitochondria_motility_analyzer`), you can launch it from:
 
+```
 Plugins → Mitochondria Motility Analyzer (python based plugin)
+```
 
-1. Launch the workflow in napari
-Option A. Run directly from Python
+---
+
+## 1. Launch the workflow in napari
+
+### Option A. Run directly from Python
+
+```
 python MitoDiffTrack.py
-
+```
 
 A napari viewer will open with all panels added automatically.
 
-Option B. Launch from napari plugins menu
+### Option B. Launch from napari plugins menu
 
 If installed as a plugin:
 
+```
 Plugins → Mitochondria Motility Analyzer (python based plugin)
+```
 
-2. Load the time lapse data and set calibration
-Panels: load_czi + calibration
-Load data
+---
 
-In the load_czi panel, click Load CZI / VSI.
+## 2. Load the time lapse data and set calibration  
+### Panels: `load_czi` + `calibration`
 
-Select a .czi (or supported) raw time lapse file.
+### Load data
 
-Choose a Z-projection method: max, median, or z0.
+1. In the `load_czi` panel, click **Load CZI / VSI**.
+2. Select a `.czi` (or supported) raw time lapse file.
+3. Choose a Z-projection method: `max`, `median`, or `z0`.
+4. Optionally set `Max preview T`.
+5. Press **Load CZI / VSI**.
 
-Optionally set Max preview T.
+A new `CZI_movie` layer will appear in the viewer.
 
-Press Load CZI / VSI.
+### Set calibration
 
-A new CZI_movie layer will appear in the viewer.
+1. In the `calibration` panel, enter:
+   - **Pixel size (µm/px)**
+   - **Frame interval (seconds)**
+2. Click **Apply**.
 
-Set calibration
-
-In the calibration panel, enter:
-
-Pixel size (µm/px)
-
-Frame interval (seconds)
-
-Click Apply.
-
-All velocity measurements in exported tables will be in µm per second, based on these values.
-
-3. Preview segmentation and tune parameters
-Panel: seg_params
-
-Select the detection Channel.
-
-Adjust preprocessing (BG sigma, Gaussian sigma, optional CLAHE).
-
-Choose a threshold mode:
-
-otsu
-
-mean+std
-
-percentile
-
-local
-
-Set object size filters:
-
-Minimum area
-
-Maximum area
-
-Optional hole filling, opening, or watershed declumping
-
-Press Preview segmentation at current T.
-
-A mito_labels_preview layer is created.
-
-Tips
-
-If faint mitochondria are missing → reduce threshold or min area.
-
-If noise appears → increase threshold or min area.
-
-4. Run full segmentation of all frames
-Panel: process_export (seg)
-
-Set Channel, T start, T end.
-
-Reuse segmentation parameters optimised in the preview.
-
-Press Run detection on all frames.
-
-The workflow:
-
-Processes every frame in the selected time range
-
-Adds a mito_labels layer
-
-Creates a global per-object table (stored internally) containing:
-
-Frame index
-
-Centroid
-
-Area
-
-Length, aspect ratio
-
-Intensity features
-
-5. LAP tracking and track preview
-Panel: track_mito
-
-Set linking parameters:
-
-Max disp (px/frame)
-
-Fast disp (px/frame) and Fast penalty factor
-
-Area ratio and Intensity ratio gating
-
-Display settings: Color by (ID or speed), Track tail length
-
-Press Run LAP tracking from detections.
-
-The workflow:
-
-Links objects across consecutive frames (LAP)
-
-Computes velocities (µm/s) if calibration is set
-
-Adds a mito_tracks_preview layer
-
-Inspect several time points to ensure the tracks follow mitochondria correctly, including fast movers.
-
-6. Export CSV results and optional snapshot
-Panel: process_export (CSV)
-
-Set Output prefix.
-
-Optional:
-
-Save PNG snapshot
-
-Export per-step global LAP table
-
-Export fast-track tables (if run)
-
-Press Export CSV / snapshot.
-
-Choose an output folder.
-
-Exports include:
-
-Per-object table
-
-LAP per-track table (duration, displacement, speed)
-
-LAP per-step table
-
-Optional fast-track per-track and per-step tables
-
-Optional PNG overlay snapshot
-
-All velocities are expressed in µm per second.
-
-7. Motion filaments and fast tracks (optional)
-Panels: flow_motion_filaments and fast_tracks_skeleton
-Motion-based filaments
-
-Set T start, T end, Channel, and Downscale.
-
-Press Flow motion filaments.
-
-A label layer motion_filament_skel is generated, highlighting main routes of sustained movement.
-
-Fast tracks in skeleton ROI
-
-Choose ROI dilate to enlarge the skeleton region.
-
-Apply more aggressive segmentation and linking parameters.
-
-Press Fast track in skeleton ROI.
-
-Outputs:
-
-mito_fast_tracks_preview layer
-
-Fast-track CSV tables (exported via process_export (CSV))
-
-Useful for detecting very fast or transient motility events.
-
-8. Batch processing (placeholder)
-Panel: batch_process_folder
-
-This version includes a placeholder batch-processing panel.
-Full automated batch segmentation + tracking will be added in a future release.
-
-For now, process each file using the single-file workflow.
-
-9. Save and load GUI configurations
-Panels: save_gui_config / load_gui_config
-
-To ensure reproducibility:
-
-Save GUI config writes all panel parameters to a JSON file
-
-Load GUI config restores the settings later
-
-After loading, press Apply in the calibration panel once to refresh pixel/temporal calibration.
-
-Notes
-
-Raw movies are not included in the repository.
-
-This workflow is intended for mitochondrial motility research.
-
-If you use MitoDiffTrack in your research, please cite this repository.
+All velocity measurements in exported tables will be in **µm per second**, based 이
