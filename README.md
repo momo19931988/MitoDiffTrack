@@ -7,7 +7,6 @@ MitoDiffTrack is a napari based pipeline for detecting and tracking mitochondria
 ## Key features
 
 - Load multi dimensional Zeiss CZI movies and perform Z projection
-- CellProfiler like IdentifyPrimaryObjects style segmentation
 - Global LAP based tracking for all detected mitochondria
 - Motion filament map from long term optical flow to reveal main “highways” of movement
 - Fast track module that performs aggressive detection only inside motion skeleton ROIs
