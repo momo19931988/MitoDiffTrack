@@ -228,4 +228,4 @@ After loading, press **Apply** in the `calibration` panel once to refresh pixel/
 
 - Raw movies are not included in the repository.  
 - This workflow is intended for mitochondrial motility research.  
-- If you use MitoDiffTrack in your research, please cite this repository.
+- If you use MitoDiffTrack in your research, please cite or acknowledge the contribution of the Frederic Meunier group, Queensland Brain Institute, The University of Queensland.
