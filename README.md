@@ -53,14 +53,6 @@ python MitoDiffTrack.py
 
 A napari viewer will open with all panels added automatically.
 
-### Option B. Launch from napari plugins menu
-
-If installed as a plugin:
-
-```
-Plugins → Mitochondria Motility Analyzer (python based plugin)
-```
-
 ---
 
 ## 2. Load the time lapse data and set calibration  
