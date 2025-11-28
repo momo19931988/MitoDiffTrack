@@ -1,132 +1,131 @@
 # MitoDiffTrack
-
-MitoDiffTrack is a napari based pipeline for detecting and tracking mitochondrial motility in time lapse fluorescence movies. It combines CellProfiler style object detection, global LAP tracking, and motion based skeleton regions of interest to highlight fast moving mitochondria and export quantitative motility statistics in µm per second. :contentReference[oaicite:0]{index=0}
-
----
-
-## Key features
-
-- Load multi dimensional Zeiss CZI movies and perform Z projection
-- Global LAP based tracking for all detected mitochondria
-- Motion filament map from long term optical flow to reveal main “highways” of movement
-- Fast track module that performs aggressive detection only inside motion skeleton ROIs
-- Export per object, per track, and per step CSV tables including speed in µm per second
-- Save and reload full GUI parameter sets as JSON to ensure reproducible analysis
+A python based workflow for analysing mitochondrial motility in time lapse fluorescence imaging, implemented as a napari plugin with multiple dock widgets.
 
 ---
 
-## Requirements
+## 1. Launch the python based workflow in napari
 
-Tested with Python 3.x and the following packages:
+1. Open **napari**.
+2. Go to **Plugins → Mitochondria Motility Analyzer (python based plugin)**.
+3. This will open several dock widgets:
+   - `load_czi`
+   - `seg_params`
+   - `process_export`
+   - `track_mito`
+   - `batch_process_folder`
 
-- `napari`
-- `magicgui`
-- `numpy`
-- `pandas`
-- `scikit-image`
-- `scipy`
-- `opencv-python` (cv2)
-- `aicspylibczi`
-- `qtpy`
+These panels should be used from top to bottom during a typical analysis.
 
-Recommended workflow
+---
 
-Inside the napari window, follow the numbered docks from top to bottom:
+## 2. Load the time lapse data and set calibration  
+### *(load_czi panel)*
 
-📂 Load CZI
+1. In the **load_czi** panel, select the processing mode:
+   - **single** for analysing one file  
+   - **folder** for batch processing of multiple files
+2. Click the **vsi_file** or **czi_file** field and select the raw time lapse image.
+3. Set the **spatial calibration**:
+   - Pixel size (µm per pixel)
+4. Set the **temporal calibration**:
+   - Frame interval (seconds)
+5. Press **Load image**.
 
-Load a .czi time lapse movie
+The image sequence will appear as a new layer (e.g. `CZI_movie`).
 
-Choose Z projection mode and time range preview if needed
+**Note**  
+Correct pixel size and frame interval are essential, because all velocities are reported in **µm per second**.
 
-⏱ Pixel / Time
+---
 
-Set pixel size in µm per pixel
+## 3. Adjust segmentation parameters and preview detection  
+### *(seg_params panel)*
 
-Set frame interval in seconds
+1. In the **seg_params** panel, choose the appropriate detection channel.
+2. Set preprocessing filters, for example:
+   - Gaussian blur (sigma)  
+   - Optional background subtraction
+3. Choose the threshold method and parameters:
+   - Global or adaptive thresholding  
+   - Threshold correction factor (sensitivity)
+4. Set the expected object size range:
+   - Minimum area (pixels)  
+   - Maximum area (pixels)
+5. Press **Preview segmentation** or **Update preview**.
 
-These values are required to compute speed_um_per_s for tracks
+A layer named `mito_preview_mask` will appear, showing detected mitochondria overlaid on the raw image.
 
-🔍 Segmentation preview (optional)
+**Tips**
+- If small or dim mitochondria are missing → lower the threshold or reduce minimum area.  
+- If too many noisy spots appear → raise the threshold or increase minimum area.
 
-Preview object detection on the current time frame
+---
 
-Adjust threshold mode, smoothing, area filters and other parameters
+## 4. Run full segmentation and export morphology data  
+### *(process_export panel)*
 
-① Detection (all frames)
+1. Open the **process_export** panel.
+2. Choose an output folder.
+3. Select the items to export, such as:
+   - Label image for each frame  
+   - Object measurements (area, length, aspect ratio, circularity, intensity)
+4. Press **Run segmentation and export**.
 
-Run intensity based object detection across a chosen time range
+The workflow processes all frames and creates:
+- A `mito_labels` layer in napari  
+- One or more CSV files with per object morphology measurements
 
-Generates a global per object table (centroid, area, shape, intensity)
+---
 
-② LAP tracking (global)
+## 5. Set LAP tracking parameters and build preview tracks  
+### *(track_mito panel)*
 
-Perform global LAP based tracking on all detected mitochondria
+1. Open the **track_mito** panel.
+2. Set tracking parameters:
+   - Maximum linking distance (µm)  
+   - Maximum gap closing frames  
+   - Minimum track length (frames)
+3. Press **Build tracks preview**.
 
-Builds a preview track layer in napari
+A `mito_tracks` layer will appear, showing trajectories overlaid on the movie.
 
-Computes displacement and speed in µm per second when pixel size and frame interval are set
+Inspect key regions to verify that tracks follow the same mitochondrion over time, especially for fast or irregularly shaped mitochondria.
 
-③ Flow motion filaments
+---
 
-Build a motion based filament skeleton from long term optical flow patterns
+## 6. Export track data including velocities  
+### *(track_mito panel)*
 
-The output layer motion_filament_skel highlights main paths of sustained mitochondrial movement
+1. Stay in the **track_mito** panel.
+2. Choose an output folder for the tracking results.
+3. Press **Export track table**.
 
-③b Fast tracks (skeleton ROI)
+The workflow generates a CSV file containing:
+- Track ID and object ID  
+- Frame number and time (seconds)  
+- X and Y position (µm)  
+- Instantaneous displacement and velocity (µm per second)  
+- Track level summary statistics (e.g., mean speed)
 
-Dilate the motion skeleton to create a motion ROI
+---
 
-Run aggressive detection only inside this ROI
+## 7. Optional batch analysis for multiple movies  
+### *(batch_process_folder panel)*
 
-Apply LAP tracking with relaxed displacement limits to capture very fast movers
+1. Open the **batch_process_folder** panel.
+2. Select an **input folder** containing multiple movies.
+3. Select an **output folder**.
+4. Reuse or copy segmentation and tracking parameters optimised on a test file.
+5. Press **Run batch**.
 
-Outputs a separate fast tracks preview layer and per step table with speed_um_per_s
+All files in the folder will be processed automatically, and segmentation and tracking results will be saved for each movie.
 
-④ Export CSV / PNG
+---
 
-Export:
+## Citation
+If you use this workflow in your research, please cite this repository.
 
-Global per object detection table
+---
 
-Global LAP per track summary
-
-Optional global LAP per step table
-
-Optional fast track per track and per step tables
-
-Optional snapshot PNG of tracks in napari
-
-All exports require valid pixel size and frame interval to ensure consistent speed units
-
-💾 Save GUI config / 📂 Load GUI config
-
-Save current GUI parameter settings into a JSON config file
-
-Reload a config later to reproduce exactly the same analysis settings
-
-Exported files
-
-Depending on the options you select in ④ Export CSV / PNG, the pipeline can produce:
-
-*_objects_YYYYMMDD_HHMMSS.csv
-Global per object detection table for all frames
-
-*_LAP_tracks_YYYYMMDD_HHMMSS.csv
-Per track summary for global LAP tracking, including duration and speed statistics
-
-*_LAP_steps_YYYYMMDD_HHMMSS.csv (optional)
-Per step table for global LAP tracking
-
-*_FAST_tracks_YYYYMMDD_HHMMSS.csv and *_FAST_steps_YYYYMMDD_HHMMSS.csv (optional)
-Per track and per step tables for fast tracks inside the skeleton ROI
-
-*_tracks_snapshot_YYYYMMDD_HHMMSS.png (optional)
-PNG snapshot of the current napari view with tracks overlaid
-
-All speed related columns are reported in µm per second when acquisition parameters are set correctly
-
-You can create a virtual environment and install dependencies, for example:
-
-```bash
-pip install napari[all] magicgui numpy pandas scikit-image scipy opencv-python aicspylibczi qtpy
+## Contact
+For questions or suggestions, please open an issue in this repository.
